@@ -11,7 +11,7 @@ We provide the raw dataset in the file `TimeCite.tsv`.
 ### File Structure
 
 - `TimeCite.tsv`: The raw dataset containing citation information.
-- `preds/`: Directory where you will place your similarity prediction files.
+- `preds/`: Directory where you will place your similarity prediction files. We provide Specter2 and Prone-S (50) scores from the paper.
 - `timecite.py`: The script for processing the dataset and evaluating the models.
 - `results.tsv`: Output file containing the per-bin accuracy scores for each method.
 
