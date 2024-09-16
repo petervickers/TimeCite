@@ -70,10 +70,10 @@ for file in data_files:
         cited_indices_to_set = random.sample(list(missing_values_cited_indices), num_cited_to_set)
         not_cited_indices_to_set = random.sample(list(missing_values_not_cited_indices), num_not_cited_to_set)
 
-        bin_df_test.loc[cited_indices_to_set, 'predicted_citation'] = 1
-        bin_df_test.loc[not_cited_indices_to_set, 'predicted_citation'] = 1
+        bin_df_test.loc[cited_indices_to_set, 'predicted_citation'] = True
+        bin_df_test.loc[not_cited_indices_to_set, 'predicted_citation'] = True
 
-        bin_df_test.loc[missing_values_df.index.difference(cited_indices_to_set).difference(not_cited_indices_to_set), 'predicted_citation'] = 0
+        bin_df_test.loc[missing_values_df.index.difference(cited_indices_to_set).difference(not_cited_indices_to_set), 'predicted_citation'] = False
 
         # Calculate accuracy
         accuracy = (bin_df_test['predicted_citation'] == bin_df_test['cite']).mean()
