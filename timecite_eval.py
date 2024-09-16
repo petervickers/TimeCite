@@ -58,22 +58,36 @@ for file in data_files:
         # Predict citations for test set
         bin_df_test['predicted_citation'] = (bin_df_test['sim'] >= threshold)
 
-        # For rows where 'sim' == -1, set 30% of 'predicted_citation' to 1 for both cite == 1 and cite == 0
+        # For rows where 'sim' == -1 (missing values), set CITE_RATE of 'predicted_citation' to 1 for both cite == 1 and cite == 0
         missing_values_df = bin_df_test[bin_df_test['sim'] == -1]
-
+        
+        # Separate missing values into two groups based on ground truth of those that were actually cited and those that were not
         missing_values_cited_indices = missing_values_df[missing_values_df['cite'] == 1].index
         missing_values_not_cited_indices = missing_values_df[missing_values_df['cite'] == 0].index
-
+        
+        # Calculate number of citations to set for missing values
+        # This ensures that we maintain the CITE_RATE for both actually cited and not cited groups
+        # CITE_RATE is applied separately to each group to preserve the original distribution
         num_cited_to_set = int(CITE_RATE * len(missing_values_cited_indices))
         num_not_cited_to_set = int(CITE_RATE * len(missing_values_not_cited_indices))
-
+        
+        # Randomly select indices to set as cited
         cited_indices_to_set = random.sample(list(missing_values_cited_indices), num_cited_to_set)
         not_cited_indices_to_set = random.sample(list(missing_values_not_cited_indices), num_not_cited_to_set)
-
+        
+        # Set predicted citations for missing values
+        # For the randomly selected indices in both groups, we set predicted_citation to True
         bin_df_test.loc[cited_indices_to_set, 'predicted_citation'] = True
         bin_df_test.loc[not_cited_indices_to_set, 'predicted_citation'] = True
-
+        
+        # For all other missing values not randomly selected, set predicted_citation to False
+        # This is done by taking the difference between all missing value indices and the selected indices
         bin_df_test.loc[missing_values_df.index.difference(cited_indices_to_set).difference(not_cited_indices_to_set), 'predicted_citation'] = False
+        
+        # The result of this process is that:
+        # 1. 100*CITE_RATE % of actually cited missing values are predicted as cited
+        # 2. 100*CITE_RATE % of actually not cited missing values are predicted as cited
+        # This preserves the original distribution while introducing randomness for missing values
 
         # Calculate accuracy
         accuracy = (bin_df_test['predicted_citation'] == bin_df_test['cite']).mean()
